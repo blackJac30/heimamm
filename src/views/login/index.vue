@@ -30,7 +30,8 @@
               <el-input placeholder="请输入验证码" v-model="form.verifyCode" prefix-icon="el-icon-key"></el-input>
             </el-col>
             <el-col :span="8">
-              <img src="../../assets/login_captcha.png" alt class="loginCode" />
+              <!-- 验证码 -->
+              <img :src="verifyCodeImg" alt class="loginCode" @click="changeImg" />
             </el-col>
           </el-row>
         </el-form-item>
@@ -92,11 +93,12 @@ export default {
           {
             type: "array",
             required: true,
-            message: "请至少选择一个活动性质",
+            message: "*请先同意服务条款",
             trigger: "change"
           }
         ]
-      }
+      },
+      verifyCodeImg: process.env.VUE_APP_ONLINEURL+"/captcha?type=sendsms&t="+ Date.now()
     };
   },
   methods: {
@@ -120,7 +122,13 @@ export default {
     // 打开注册面板
     openRegister() {
       // 修改注册组件的参数打开注册组件
-      this.$refs.Register.dialogFormVisible = "true";
+      this.$refs.Register.dialogFormVisible = true;
+    },
+
+    // 点击验证码图片切换验证码
+    changeImg() {
+      // 环境变量中的基地址
+      this.verifyCodeImg = process.env.VUE_APP_ONLINEURL+"/captcha?type=sendsms&t="+ Date.now()
     }
   },
   components: {
