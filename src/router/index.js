@@ -19,9 +19,14 @@ import login from '../views/login/index.vue'
 // 创建一个新的vue-router对象
 const router = new VueRouter({
     routes: [{
-        path: "/",
-        component: login
-    }]
+            path: "/login",
+            component: login
+        },
+        {
+            path: '/',
+            redirect: '/login'
+        }
+    ]
 })
 // 把vue-router对象暴露出去
 export default router

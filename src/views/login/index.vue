@@ -63,6 +63,10 @@
 <script>
 // 导入注册子组件
 import register from "./components/register.vue";
+
+// 导入封装的自定义校验规则
+import { checkPhone } from "@/utils/myCheck.js";
+
 export default {
   data() {
     return {
@@ -75,7 +79,7 @@ export default {
       rules: {
         userphone: [
           { required: true, message: "请输入手机号", trigger: "blur" },
-          { min: 11, max: 11, message: "长度在 3 到 5 个字符", trigger: "blur" }
+          { validator: checkPhone, trigger: "blur" }
         ],
         password: [
           // 非空
@@ -98,7 +102,8 @@ export default {
           }
         ]
       },
-      verifyCodeImg: process.env.VUE_APP_ONLINEURL+"/captcha?type=sendsms&t="+ Date.now()
+      verifyCodeImg:
+        process.env.VUE_APP_URL + "/captcha?type=login&t=" + Date.now()
     };
   },
   methods: {
@@ -128,7 +133,8 @@ export default {
     // 点击验证码图片切换验证码
     changeImg() {
       // 环境变量中的基地址
-      this.verifyCodeImg = process.env.VUE_APP_ONLINEURL+"/captcha?type=sendsms&t="+ Date.now()
+      this.verifyCodeImg =
+        process.env.VUE_APP_URL + "/captcha?type=login&t=" + Date.now();
     }
   },
   components: {
