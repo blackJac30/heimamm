@@ -27,7 +27,13 @@ Vue.config.productionTip = false
 
 // 导入vue-router的文件
 import router from './router/index.js'
+
+// 导入Vuex的store
+import store from './store/index.js'
+
+// Vue的实力
 new Vue({
   render: h => h(App),
-  router // 将路由对象挂载到Vue实例中
+  router, // 将路由对象挂载到Vue实例中
+  store
 }).$mount('#app')

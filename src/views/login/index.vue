@@ -38,7 +38,7 @@
 
         <!-- 单选框 -->
         <el-form-item prop="isCheck">
-          <el-checkbox v-model="form.isCheck" class="checkbox">
+          <el-checkbox v-model="form.isCheck" class="checkbox" label="check">
             我已阅读并同意
             <el-link type="primary" class="alink">用户协议</el-link>和
             <el-link type="primary" class="alink">隐私条款</el-link>
@@ -67,14 +67,20 @@ import register from "./components/register.vue";
 // 导入封装的自定义校验规则
 import { checkPhone } from "@/utils/myCheck.js";
 
+// 导入封装登录方法
+import { apiLogin } from "@/api/apiLogin.js";
+
+// 导入封装token的方法
+import { setToken } from "@/utils/myToken.js";
+
 export default {
   data() {
     return {
       form: {
-        userphone: "",
-        password: "",
+        userphone: "18511111111",
+        password: "12345678",
         verifyCode: "",
-        isCheck: []
+        isCheck: ["check", true]
       },
       rules: {
         userphone: [
@@ -107,13 +113,20 @@ export default {
     };
   },
   methods: {
-    submitForm() {
+    submitForm() { 
       this.$refs.form.validate(valid => {
         if (valid) {
-          this.$message({
-            showClose: true,
-            message: "恭喜你，这是一条成功消息",
-            type: "success"
+          // 使用封装好的登录模块
+          apiLogin({
+            userPhone: this.form.userphone,
+            password: this.form.password,
+            code: this.form.verifyCode
+          }).then(res => {
+            // window.console.log(res);
+            // 跳转到首页
+            this.$router.push("/index");
+            // 使用封装方法设置token
+            setToken(res.data.data.token);
           });
         } else {
           this.$message.error("验证不通过");

@@ -15,6 +15,8 @@ export function apiLogin({
             phone: userPhone,
             password: password,
             code: code
-        }
+        },
+        // 跨域携带cookie
+        withCredentials: true
     })
 }
