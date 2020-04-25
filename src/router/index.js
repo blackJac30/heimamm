@@ -18,12 +18,9 @@ VueRouter.prototype.push = function push(location) {
 import login from '../views/login/index.vue'
 // 首页模块
 import index from '../views/index/index.vue'
-// 导入index组件的子组件
-import Chart from '../views/chart/index.vue'
-import User from '../views/user/index.vue'
-import Question from '../views/question/index.vue'
-import Enterprise from '../views/enterprise/index.vue'
-import Subject from '../views/subject/index.vue'
+
+// 导入子组件的嵌套路由
+import childRouter from '../router/childRouter.js'
 
 // 导入操作token的方法
 import {
@@ -41,10 +38,13 @@ import {
 } from 'element-ui'
 
 // 导入nprogress
-// 导入脚本
+// 导入进度条
 import NProgress from 'nprogress'
 // 导入样式
 import 'nprogress/nprogress.css'
+
+// 导入Vuex 的 store
+import store from '../store/index.js'
 
 // 创建一个新的vue-router对象
 const router = new VueRouter({
@@ -57,42 +57,10 @@ const router = new VueRouter({
     }, {
         path: '/index',
         component: index,
-        children: [{
-                path: 'chart',
-                component: Chart,
-                meta: {
-                    title: '数据概览'
-                }
-            },
-            {
-                path: 'user',
-                component: User,
-                meta: {
-                    title: '用户列表'
-                }
-            },
-            {
-                path: 'question',
-                component: Question,
-                meta: {
-                    title: '题库列表'
-                }
-            },
-            {
-                path: 'enterprise',
-                component: Enterprise,
-                meta: {
-                    title: '企业列表'
-                }
-            },
-            {
-                path: 'subject',
-                component: Subject,
-                meta: {
-                    title: '学科列表'
-                }
-            }
-        ]
+        meta: {
+            roles: ["管理员", "老师", "学生", "超级管理员"]
+        },
+        children: childRouter
     }]
 })
 
@@ -121,7 +89,37 @@ router.beforeEach((to, from, next) => {
             apiInfo().then(res => {
                 // 判断请求的返回值 200 是token为真
                 if (res.data.code == 200) {
-                    next();
+                    // window.console.log(res)
+                    // 创建一个用户信息对象
+                    var userInfo = {
+                        // 设置用户名
+                        userName: res.data.data.username,
+                        // 设置用户头像
+                        userImg: process.env.VUE_APP_URL + '/' + res.data.data.avatar
+                    }
+                    // 调用mutations中的方法
+                    // 此时this的指向不对; 不能直接点出(Vue中可以)
+                    // this.$store.commit("setuserInfo", userInfo)
+                    // 在js中使用vuex 的 store 正确的方法:
+                    store.commit("setuserInfo", userInfo)
+
+                    // 在这里判断角色可以访问的路由地址
+                    // 获取到登录返回的角色信息
+                    const role = res.data.data.role
+
+                    // 把请求回来的role保存到vuex仓库中, 作为公共属性
+                    store.commit('setRole', role)
+
+                    // 判断登录的账号角色是否能去往该路由地址
+                    if (to.meta.roles.includes(role)) {
+                        next();
+                    } else {
+                        // 执行这里面的代码证明当前角色没有权限访问路由
+                        // 提示
+                        Message.error("对不起, 没有权利访问")
+                        // 关闭进度条
+                        NProgress.done();
+                    }
                 }
                 // 判断请求的返回值 206 是token假
                 else if (res.data.code == 206) {

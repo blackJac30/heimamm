@@ -113,7 +113,7 @@ export default {
     };
   },
   methods: {
-    submitForm() { 
+    submitForm() {
       this.$refs.form.validate(valid => {
         if (valid) {
           // 使用封装好的登录模块
@@ -123,10 +123,10 @@ export default {
             code: this.form.verifyCode
           }).then(res => {
             // window.console.log(res);
-            // 跳转到首页
-            this.$router.push("/index");
             // 使用封装方法设置token
             setToken(res.data.data.token);
+            // 跳转到首页
+            this.$router.push("/index");
           });
         } else {
           this.$message.error("验证不通过");

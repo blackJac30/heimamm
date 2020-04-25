@@ -9,8 +9,8 @@
           <span class="title">黑马面面</span>
         </div>
         <div class="right">
-          <img :src="imgUrl" alt class="right_logo" />
-          <span class="word">{{userInfo.username}}</span>
+          <img :src="$store.state.userimg" alt class="right_logo" />
+          <span class="word">{{$store.state.username}}</span>
           <el-button type="primary" @click="logout" size="mini">退出</el-button>
         </div>
       </el-header>
@@ -19,26 +19,17 @@
         <el-aside width="auto">
           <!-- :router="true" 开启路由 -->
           <el-menu :router="true" class="el-menu-vertical-demo" :collapse="iscollapse">
-            <el-menu-item index="/index/chart">
-              <i class="el-icon-info"></i>
-              <span slot="title">数据概览</span>
-            </el-menu-item>
-            <el-menu-item index="/index/user">
-              <i class="el-icon-user"></i>
-              <span slot="title">用户列表</span>
-            </el-menu-item>
-            <el-menu-item index="/index/question">
-              <i class="el-icon-edit"></i>
-              <span slot="title">题库列表</span>
-            </el-menu-item>
-            <el-menu-item index="/index/enterprise">
-              <i class="el-icon-office-building"></i>
-              <span slot="title">企业列表</span>
-            </el-menu-item>
-            <el-menu-item index="/index/subject">
-              <i class="el-icon-notebook-2"></i>
-              <span slot="title">学科列表</span>
-            </el-menu-item>
+            <!-- 路由权限的可视化 -->
+            <template v-for="(item, index) in childRouter">
+              <el-menu-item
+                :index="item.meta.fullpath"
+                :key="index"
+                v-if="item.meta.roles.includes($store.state.role)"
+              >
+                <i :class="item.meta.icon"></i>
+                <span slot="title">{{item.meta.title}}</span>
+              </el-menu-item>
+            </template>
           </el-menu>
         </el-aside>
         <!-- 内容区域 -->
@@ -52,16 +43,20 @@
 
 <script>
 // 导入首页网络请求封装方法
-import { apiInfo, apiLogout } from "@/api/index.js";
+import { apiLogout } from "@/api/index.js";
 // 导入操作token的方法
 import { removeToken } from "@/utils/myToken.js";
+// 导入封装的子路由
+import childRouter from "../../router/childRouter.js";
 export default {
   data() {
     return {
       userInfo: {},
       imgUrl: "",
       // 左边导航栏是否折叠
-      iscollapse: false
+      iscollapse: false,
+      // 保存子路由数据
+      childRouter: childRouter
     };
   },
   methods: {
@@ -93,22 +88,6 @@ export default {
           });
         });
     }
-  },
-  created() {
-    // 得到用户信息
-    apiInfo().then(res => {
-      //   window.console.log(res);
-      // 判断请求的返回值 200 是token正常, 能正常登录
-      if (res.data.code == 200) {
-        this.userInfo = res.data.data;
-        this.imgUrl = process.env.VUE_APP_URL + "/" + this.userInfo.avatar;
-      }
-      // 判断请求的返回值 206 是token不正常, 不能正常登录
-      else if (res.data.code == 206) {
-        this.$message.error("登录信息错误(token)");
-        this.$router.push("/login");
-      }
-    });
   }
 };
 </script>
